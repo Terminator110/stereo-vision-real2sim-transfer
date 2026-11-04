@@ -45,11 +45,11 @@ The interactive viewer has not been opened as part of this copy operation.
 
 ## Demonstration
 
-[Watch the Real2Sim demo](docs/media/real2sim_d
+[Watch the Real2Sim demo](docs/media/real2sim_demo.mp4)
 
 https://github.com/user-attachments/assets/b5b4f1de-79f5-4ff9-8da7-dcf48feeaf12
 
-emo.mp4)
+
 
 ## Complete Workflow
 
