@@ -1,0 +1,72 @@
+{
+  "mapping_mode": "shared_manipulation_workspace",
+  "source_frame": "calibrated_table_v3",
+  "origin_world_m": [
+    0.38499999999999995,
+    -0.12,
+    0.832
+  ],
+  "yaw_degrees": -90.0,
+  "scale": 1,
+  "source_origin_maps_directly": true,
+  "physical_table_alignment_required": false,
+  "source_normal": [
+    0,
+    0,
+    1
+  ],
+  "target_normal": [
+    0,
+    0,
+    1
+  ],
+  "hand_base_offset_m": [
+    0,
+    0,
+    0
+  ],
+  "model": "/home/sparx3d/physikal_workflow/dex-5/models/scenario_g1_dex5_stationary.xml",
+  "model_root_sha256": "a2c6dbb508b7b999c239929edd4c42389a3e4e10f0406041f1d35d96ca9e3581",
+  "source_table_calibration_sha256": "e9265b1f596e14d0a566f89720cfa4836da17b3623c688868b54efd2ba8c75e2",
+  "operating_probe_offsets_m": {
+    "x": [
+      -0.02,
+      0.02
+    ],
+    "y": [
+      -0.025,
+      0.025
+    ],
+    "height": [
+      0.18,
+      0.26
+    ]
+  },
+  "origin_note": "Coordinate reference on tabletop; hand-base commands operate ABOVE it. This is not a command to press the palm into the tabletop.",
+  "collision_checks": {
+    "clearance_m": 0.002,
+    "checked_geom_pairs": 2027,
+    "baseline_hand_mount_overlaps": 12,
+    "baseline_policy": "Existing Dex5/wrist assembly overlaps may not deepen by more than 1 mm; other collisions require 2 mm clearance",
+    "limitations": "Discrete convex-geom distances; adjacent/welded links excluded. Cup convex hull included conservatively despite visual-only contacts. Not exact CAD clearance or dynamics."
+  },
+  "selected_path_check": {
+    "ok": null,
+    "note": "Stale after net +7 cm environment height shift; trajectory must be revalidated."
+  },
+  "chosen_from_current_approach": false,
+  "reuse_policy": "Fixed transform for future v3 recordings; do not re-fit or recenter each new demonstration. Revalidate every new path.",
+  "selection_trajectory_sha256": "aa387f14d7c0face9f9adac4877df4fb57d6f1bd78f1728271db99ee01abc716",
+  "yaw_selection_note": "Operator-confirmed horizontal alignment; replaces reachability-selected -60 degrees.",
+  "placement_note": "Best tested front placement; retained 5 mm shift toward fixed G1. Broader finite search and dense comparisons did not improve sampled volume. Not globally optimal or full 50 cm coverage.",
+  "placement_search_report": "/home/sparx3d/physikal_workflow/dex-5/outputs/right_wrist_reachable_volume_20261103/broad_placement_search.json",
+  "previous_probe_summary_before_translation": {
+    "safe_probes": 19,
+    "total_probes": 27,
+    "upper_layer_safe": 9,
+    "centre_joint_margin_rad": 1.3156825964428636
+  },
+  "right_wrist_volume_report": "/home/sparx3d/physikal_workflow/dex-5/outputs/waist_wrist_workspace_20261103/report.json",
+  "reachability_requires_recompute": true,
+  "environment_translation_report": "/home/sparx3d/physikal_workflow/dex-5/outputs/environment_lower_3cm_20261103/report.json"
+}

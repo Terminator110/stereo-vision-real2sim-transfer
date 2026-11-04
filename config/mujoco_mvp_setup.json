@@ -1,0 +1,114 @@
+{
+  "model": "models/scenario_g1_dex5_stationary.xml",
+  "rgb_resolution": [
+    256,
+    256
+  ],
+  "nominal_future_recording_hz": 30,
+  "cameras": {
+    "ego": "mvp_ego_rgb",
+    "third_person": "mvp_third_person_rgb"
+  },
+  "camera_note": "Ego follows torso/head assembly. Third-person stays fixed relative to table; no body poses changed.",
+  "fingertip_touch": [
+    {
+      "side": "left",
+      "finger": "thumb",
+      "body": "g1_01_dex5_left_Link_14L",
+      "site": "mvp_left_thumb_touch_site",
+      "sensor": "mvp_left_thumb_touch"
+    },
+    {
+      "side": "left",
+      "finger": "index",
+      "body": "g1_01_dex5_left_Link_24L",
+      "site": "mvp_left_index_touch_site",
+      "sensor": "mvp_left_index_touch"
+    },
+    {
+      "side": "left",
+      "finger": "middle",
+      "body": "g1_01_dex5_left_Link_34L",
+      "site": "mvp_left_middle_touch_site",
+      "sensor": "mvp_left_middle_touch"
+    },
+    {
+      "side": "left",
+      "finger": "ring",
+      "body": "g1_01_dex5_left_Link_44L",
+      "site": "mvp_left_ring_touch_site",
+      "sensor": "mvp_left_ring_touch"
+    },
+    {
+      "side": "left",
+      "finger": "little",
+      "body": "g1_01_dex5_left_Link_54L",
+      "site": "mvp_left_little_touch_site",
+      "sensor": "mvp_left_little_touch"
+    },
+    {
+      "side": "right",
+      "finger": "thumb",
+      "body": "g1_01_dex5_right_Link_14R",
+      "site": "mvp_right_thumb_touch_site",
+      "sensor": "mvp_right_thumb_touch"
+    },
+    {
+      "side": "right",
+      "finger": "index",
+      "body": "g1_01_dex5_right_Link_24R",
+      "site": "mvp_right_index_touch_site",
+      "sensor": "mvp_right_index_touch"
+    },
+    {
+      "side": "right",
+      "finger": "middle",
+      "body": "g1_01_dex5_right_Link_34R",
+      "site": "mvp_right_middle_touch_site",
+      "sensor": "mvp_right_middle_touch"
+    },
+    {
+      "side": "right",
+      "finger": "ring",
+      "body": "g1_01_dex5_right_Link_44R",
+      "site": "mvp_right_ring_touch_site",
+      "sensor": "mvp_right_ring_touch"
+    },
+    {
+      "side": "right",
+      "finger": "little",
+      "body": "g1_01_dex5_right_Link_54R",
+      "site": "mvp_right_little_touch_site",
+      "sensor": "mvp_right_little_touch"
+    }
+  ],
+  "objects": {
+    "cup": "table_cup",
+    "table": "work_table",
+    "coaster": null
+  },
+  "tabletop_geom": "work_table_top",
+  "robot_state_fields": [
+    "qpos",
+    "qvel"
+  ],
+  "control_field": "ctrl",
+  "action_note": "Current 29 G1 actuators are motors; ctrl is not a joint-position target. Dex5 fingers are currently kinematic. Policy action space not chosen yet.",
+  "phase_values": [
+    "unknown",
+    "approach",
+    "grasp",
+    "lift",
+    "transport",
+    "place",
+    "release"
+  ],
+  "success_default": null,
+  "recorder_enabled": false,
+  "dataset_export_enabled": false,
+  "limitations": [
+    "Cup is currently static and visual-only; no verified grasp physics.",
+    "Touch values require actual simulated contact forces; not evidence of successful grasp.",
+    "Phase labels, success evaluation and policy action definition await user details."
+  ]
+}

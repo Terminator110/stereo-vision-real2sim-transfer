@@ -1,0 +1,62 @@
+<mujoco model="unitree_g1_29dof_assets">
+  <!--Shared Unitree G1 29-DOF defaults and meshes. Include once per scene.-->
+  <default>
+    <default class="unitree_g1_robot">
+      <joint damping="0" armature="0" frictionloss="0" />
+      <geom friction="1 0.005 0.0001" condim="3" solref="0.02 1" solimp="0.9 0.95 0.001" />
+    </default>
+    <default class="unitree_g1_torso_motor">
+      <joint damping="0.05" armature="0.01" frictionloss="0.2" />
+    </default>
+    <default class="unitree_g1_leg_motor">
+      <joint damping="0.05" armature="0.01" frictionloss="0.2" />
+    </default>
+    <default class="unitree_g1_ankle_motor">
+      <joint damping="0.05" armature="0.01" frictionloss="0.2" />
+    </default>
+    <default class="unitree_g1_arm_motor">
+      <joint damping="0.05" armature="0.01" frictionloss="0.2" />
+    </default>
+    <default class="unitree_g1_wrist_motor">
+      <joint damping="0.05" armature="0.01" frictionloss="0.1" />
+    </default>
+  </default>
+  <asset>
+    <mesh name="unitree_g1_pelvis" file="robots/unitree_g1_29dof/meshes/pelvis.STL" />
+    <mesh name="unitree_g1_pelvis_contour_link" file="robots/unitree_g1_29dof/meshes/pelvis_contour_link.STL" />
+    <mesh name="unitree_g1_left_hip_pitch_link" file="robots/unitree_g1_29dof/meshes/left_hip_pitch_link.STL" />
+    <mesh name="unitree_g1_left_hip_roll_link" file="robots/unitree_g1_29dof/meshes/left_hip_roll_link.STL" />
+    <mesh name="unitree_g1_left_hip_yaw_link" file="robots/unitree_g1_29dof/meshes/left_hip_yaw_link.STL" />
+    <mesh name="unitree_g1_left_knee_link" file="robots/unitree_g1_29dof/meshes/left_knee_link.STL" />
+    <mesh name="unitree_g1_left_ankle_pitch_link" file="robots/unitree_g1_29dof/meshes/left_ankle_pitch_link.STL" />
+    <mesh name="unitree_g1_left_ankle_roll_link" file="robots/unitree_g1_29dof/meshes/left_ankle_roll_link.STL" />
+    <mesh name="unitree_g1_right_hip_pitch_link" file="robots/unitree_g1_29dof/meshes/right_hip_pitch_link.STL" />
+    <mesh name="unitree_g1_right_hip_roll_link" file="robots/unitree_g1_29dof/meshes/right_hip_roll_link.STL" />
+    <mesh name="unitree_g1_right_hip_yaw_link" file="robots/unitree_g1_29dof/meshes/right_hip_yaw_link.STL" />
+    <mesh name="unitree_g1_right_knee_link" file="robots/unitree_g1_29dof/meshes/right_knee_link.STL" />
+    <mesh name="unitree_g1_right_ankle_pitch_link" file="robots/unitree_g1_29dof/meshes/right_ankle_pitch_link.STL" />
+    <mesh name="unitree_g1_right_ankle_roll_link" file="robots/unitree_g1_29dof/meshes/right_ankle_roll_link.STL" />
+    <mesh name="unitree_g1_waist_yaw_link" file="robots/unitree_g1_29dof/meshes/waist_yaw_link.STL" />
+    <mesh name="unitree_g1_waist_roll_link" file="robots/unitree_g1_29dof/meshes/waist_roll_link.STL" />
+    <mesh name="unitree_g1_torso_link" file="robots/unitree_g1_29dof/meshes/torso_link.STL" />
+    <mesh name="unitree_g1_logo_link" file="robots/unitree_g1_29dof/meshes/logo_link.STL" />
+    <mesh name="unitree_g1_head_link" file="robots/unitree_g1_29dof/meshes/head_link.STL" />
+    <mesh name="unitree_g1_waist_support_link" file="robots/unitree_g1_29dof/meshes/waist_support_link.STL" />
+    <mesh name="unitree_g1_left_shoulder_pitch_link" file="robots/unitree_g1_29dof/meshes/left_shoulder_pitch_link.STL" />
+    <mesh name="unitree_g1_left_shoulder_roll_link" file="robots/unitree_g1_29dof/meshes/left_shoulder_roll_link.STL" />
+    <mesh name="unitree_g1_left_shoulder_yaw_link" file="robots/unitree_g1_29dof/meshes/left_shoulder_yaw_link.STL" />
+    <mesh name="unitree_g1_left_elbow_link" file="robots/unitree_g1_29dof/meshes/left_elbow_link.STL" />
+    <mesh name="unitree_g1_left_wrist_roll_link" file="robots/unitree_g1_29dof/meshes/left_wrist_roll_link.STL" />
+    <mesh name="unitree_g1_left_wrist_pitch_link" file="robots/unitree_g1_29dof/meshes/left_wrist_pitch_link.STL" />
+    <mesh name="unitree_g1_left_wrist_yaw_link" file="robots/unitree_g1_29dof/meshes/left_wrist_yaw_link.STL" />
+    <mesh name="unitree_g1_left_rubber_hand" file="robots/unitree_g1_29dof/meshes/left_rubber_hand.STL" />
+    <mesh name="unitree_g1_right_shoulder_pitch_link" file="robots/unitree_g1_29dof/meshes/right_shoulder_pitch_link.STL" />
+    <mesh name="unitree_g1_right_shoulder_roll_link" file="robots/unitree_g1_29dof/meshes/right_shoulder_roll_link.STL" />
+    <mesh name="unitree_g1_right_shoulder_yaw_link" file="robots/unitree_g1_29dof/meshes/right_shoulder_yaw_link.STL" />
+    <mesh name="unitree_g1_right_elbow_link" file="robots/unitree_g1_29dof/meshes/right_elbow_link.STL" />
+    <mesh name="unitree_g1_right_wrist_roll_link" file="robots/unitree_g1_29dof/meshes/right_wrist_roll_link.STL" />
+    <mesh name="unitree_g1_right_wrist_pitch_link" file="robots/unitree_g1_29dof/meshes/right_wrist_pitch_link.STL" />
+    <mesh name="unitree_g1_right_wrist_yaw_link" file="robots/unitree_g1_29dof/meshes/right_wrist_yaw_link.STL" />
+    <mesh name="unitree_g1_right_rubber_hand" file="robots/unitree_g1_29dof/meshes/right_rubber_hand.STL" />
+  </asset>
+</mujoco>

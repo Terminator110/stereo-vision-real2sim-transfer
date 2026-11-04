@@ -1,0 +1,302 @@
+#!/usr/bin/env python3
+"""CLI for Stereo-Vision based Real2Sim Transfer.
+
+This wrapper intentionally does not rewrite the project's research scripts.
+Use `./real2sim doctor` to check the local checkout before execution.
+"""
+from __future__ import annotations
+
+import argparse
+import importlib.metadata as metadata
+import json
+import os
+from pathlib import Path
+import re
+import shlex
+import subprocess
+import sys
+
+ROOT = Path(__file__).resolve().parent
+CODE = ROOT / "code"
+
+
+def repo_path(value: str) -> Path:
+    """Resolve paths relative to repo root, with ~ expansion."""
+    path = Path(os.path.expandvars(str(value))).expanduser()
+    return path if path.is_absolute() else ROOT / path
+
+
+def read_config(path: Path) -> dict:
+    try:
+        import yaml
+    except ImportError as exc:
+        raise SystemExit("PyYAML missing. Activate g1_lerobot, or install `pip install PyYAML`.") from exc
+    if not path.is_file():
+        raise SystemExit(f"Missing config file: {path}")
+    config = yaml.safe_load(path.read_text(encoding="utf-8"))
+    if not isinstance(config, dict):
+        raise SystemExit("Configuration must be a YAML mapping")
+    return config
+
+
+def get(config: dict, *path, default=None):
+    value = config
+    for key in path:
+        if not isinstance(value, dict) or key not in value:
+            return default
+        value = value[key]
+    return value
+
+
+def record_dir(take: str, config: dict) -> Path:
+    return repo_path(get(config, "paths", "recordings", default="code/stereo/recordings_three_cam")) / take
+
+
+def fs_python(config: dict) -> Path:
+    configured = get(config, "paths", "foundationstereo_python")
+    if configured:
+        return repo_path(configured)
+    return ROOT / "FoundationStereo" / ".venv" / "bin" / "python"
+
+
+def python_here() -> str:
+    return sys.executable
+
+
+def is_file(path: Path) -> bool:
+    return path.is_file()
+
+
+def insist(paths: list[Path]):
+    missing = [str(p) for p in paths if not is_file(p)]
+    if missing:
+        raise SystemExit("Required files missing:\n  " + "\n  ".join(missing))
+
+
+def format_cmd(command):
+    return shlex.join(map(str, command))
+
+
+def run(command, *, dry_run=False):
+    print("\n$ " + format_cmd(command), flush=True)
+    if dry_run:
+        print("(dry run — nothing executed)", flush=True)
+        return 0
+    return subprocess.call(list(map(str, command)), cwd=str(CODE))
+
+
+def check_outputs(target: Path, *, overwrite: bool, dry_run: bool):
+    if target.exists() and any(target.iterdir()) and not overwrite and not dry_run:
+        raise SystemExit(
+            f"Output directory already contains files: {target}\n"
+            "Choose --output NEW_DIRECTORY or use --overwrite to permit writing there."
+        )
+
+
+def help_flags(script: Path) -> str:
+    # Only invoked for annotation (CLI differs between project iterations).
+    try:
+        proc = subprocess.run(
+            [python_here(), str(script), "--help"],
+            cwd=str(CODE), text=True, capture_output=True, timeout=25,
+        )
+        return proc.stdout + "\n" + proc.stderr if proc.returncode == 0 else ""
+    except (subprocess.SubprocessError, OSError):
+        return ""
+
+
+def annotation_args(script: Path, take: str, config: dict) -> list[str]:
+    """Use annotate_phases.py's verified --video interface."""
+    # Signature verified against the user's installed annotation script.
+    # If help can be inspected, refuse incompatible future revisions.
+    help_text = help_flags(script) if script.is_file() else ""
+    options = set(re.findall(r"(?<![\w-])--[\w-]+", help_text))
+    if help_text and "--video" not in options:
+        raise SystemExit(
+            "annotate_phases.py does not expose the expected --video option. "
+            "Inspect its --help before continuing."
+        )
+    return ["--video", str(record_dir(take, config) / "camera1.avi")]
+
+
+def run_doctor(config: dict, take: str | None) -> int:
+    checks = [
+        ("G1 / DEX5 MuJoCo scene", ROOT / "models/scenario_g1_dex5_stationary.xml"),
+        ("Three-camera recorder", CODE / "stereo/record_three_cameras.py"),
+        ("Phase annotation", CODE / "annotate_phases.py"),
+        ("Batch pipeline v2", CODE / "dex5_batch_pipeline_v2.py"),
+        ("SAM3 segmentation", CODE / "dex5_sam3_video_masks.py"),
+        ("Stereo finger reconstruction", CODE / "12_stereo_g1_dex5.py"),
+        ("G1 integration", CODE / "10_g1_dex5_stationary.py"),
+        ("Dynamic G1 dependency", CODE / "08_live_webcam_dex5.py"),
+        ("Dynamic retarget dependency", CODE / "07_retarget_dex5_right.py"),
+        ("Dynamic stereo wrist dependency", CODE / "stereo/stereo_wrist_test.py"),
+        ("Thumb retargeting", CODE / "thumb_retarget.py"),
+        ("Kinematic replay", CODE / "dex5_video_to_sim_side_by_side.py"),
+        ("Physics replay", CODE / "dex5_physics_replay.py"),
+        ("FoundationStereo processor", ROOT / "FoundationStereo/scripts/dex5_wristband_pipeline_v2.py"),
+        ("FoundationStereo Python", fs_python(config)),
+        ("Stereo calibration", repo_path(get(config,"paths","calibration"))),
+        ("SAM3 checkpoint", repo_path(get(config,"paths","sam_weights"))),
+    ]
+    if take:
+        rec = record_dir(take, config)
+        checks.extend([
+            ("Selected take folder", rec),
+            ("Camera 1 video", rec / "camera1.avi"),
+            ("Phase annotations", rec / "phase_annotations.csv"),
+        ])
+    print("Stereo-Vision based Real2Sim Transfer — local environment check")
+    failed = 0
+    for label, path in checks:
+        okay = path.exists()
+        print(f"  {'OK  ' if okay else 'MISS'} {label}: {path}")
+        if not okay:
+            failed += 1
+    for dist in ("PyYAML", "numpy", "scipy", "opencv-python", "mediapipe", "mujoco"):
+        try:
+            ver = metadata.version(dist)
+            print(f"  OK   Python package {dist}=={ver}")
+        except metadata.PackageNotFoundError:
+            print(f"  MISS Python package {dist}")
+            failed += 1
+    if take:
+        rec = record_dir(take, config)
+        if (rec / "frame_timestamps.csv").exists() and not (rec / "timestamps.csv").exists():
+            print("  NOTE This recording has frame_timestamps.csv but no timestamps.csv. "
+                  "Batch compatibility may require the project's timestamp conversion.")
+    print(f"\nDoctor: {failed} missing item(s). No project files changed.")
+    return 1 if failed else 0
+
+
+def parser_factory():
+    p = argparse.ArgumentParser(prog="real2sim", description="Stereo-Vision based Real2Sim Transfer")
+    p.add_argument("--config", default="configs/default.yaml", help="YAML config relative to project root")
+    subs = p.add_subparsers(dest="command", required=True)
+    sub = subs.add_parser("doctor", help="Check dependencies and local files without making changes")
+    sub.add_argument("--take", help="Also check recording files for a given take")
+    for command, desc in (
+        ("record", "Launch three-camera recording"),
+        ("process", "Run SAM3 + FoundationStereo + G1 reconstruction"),
+        ("annotate", "Launch manipulation phase annotation"),
+        ("replay", "Replay wrist/finger trajectory in MuJoCo"),
+        ("physics", "Run experimental cup-placement physics replay"),
+    ):
+        sub = subs.add_parser(command, help=desc)
+        sub.add_argument("--dry-run", action="store_true", help="Print command only; do not run")
+        if command != "record":
+            sub.add_argument("--take", required=True, help="Recording folder name")
+        if command in ("process", "annotate", "replay", "physics"):
+            sub.add_argument("--overwrite", action="store_true", help="Allow updating existing generated data")
+        if command in ("replay", "physics"):
+            sub.add_argument("--output", help="Override output folder (relative to project root)")
+        if command == "replay":
+            sub.add_argument("--ik-mode", choices=("xyz", "pose"), help="Override default IK mode")
+            sub.add_argument("--headless", action="store_true", help="Skip MuJoCo interactive viewer")
+        if command == "physics":
+            sub.add_argument("--view", action="store_true", help="Launch physics viewer if supported")
+            sub.add_argument("--trajectory", help="Input kinematic sim_qpos.npz (defaults to real2sim replay)")
+    return p
+
+
+def main():
+    parser = parser_factory()
+    args, extra = parser.parse_known_args()
+    if args.command == "doctor" and extra:
+        parser.error("Unexpected doctor arguments: " + " ".join(extra))
+    config = read_config(repo_path(args.config))
+    if args.command == "doctor":
+        return run_doctor(config, args.take)
+    if args.command == "record":
+        script = CODE / "stereo/record_three_cameras.py"
+        if not args.dry_run:
+            insist([script])
+        return run([python_here(), script, *extra], dry_run=args.dry_run)
+    if args.command == "annotate":
+        script = CODE / "annotate_phases.py"
+        if not args.dry_run:
+            insist([script, record_dir(args.take, config) / "camera1.avi"])
+            existing = record_dir(args.take, config) / "phase_annotations.csv"
+            if existing.exists() and not args.overwrite:
+                raise SystemExit(f"Existing phase annotations will not be overwritten: {existing}\nUse --overwrite only if you intend to re-annotate this take.")
+        cmd = [python_here(), script, *annotation_args(script, args.take, config), *extra]
+        return run(cmd, dry_run=args.dry_run)
+    if args.command == "process":
+        script = CODE / "dex5_batch_pipeline_v2.py"
+        calib = repo_path(get(config, "paths", "calibration"))
+        weights = repo_path(get(config, "paths", "sam_weights"))
+        fp = fs_python(config)
+        rec = record_dir(args.take, config)
+        if not args.dry_run:
+            insist([script, calib, weights, fp, rec])
+            previous = ROOT / "FoundationStereo" / f"wristband_batch_{args.take}"
+            if previous.exists() and any(previous.iterdir()) and not args.overwrite:
+                raise SystemExit(
+                    f"Existing processing results will not be overwritten: {previous}\n"
+                    "Use --overwrite only if you intend to reprocess this take."
+                )
+        cmd = [python_here(), script, "process", "--take", rec,
+               "--calib", calib, "--fs-python", fp,
+               "--g1-python", python_here(), "--sam-weights", weights]
+        opts = get(config, "reconstruction", default={})
+        if opts.get("objects", True):
+            cmd += ["--objects"]
+        cmd += ["--object-every-s", str(opts.get("object_every_s", 1.0)),
+                "--cup-radius-mm", str(opts.get("cup_radius_mm", 35)),
+                "--cup-height-mm", str(opts.get("cup_height_mm", 100))]
+        return run([*cmd, *extra], dry_run=args.dry_run)
+    if args.command == "replay":
+        script = CODE / "dex5_video_to_sim_side_by_side.py"
+        trial = ROOT / "FoundationStereo" / f"wristband_batch_{args.take}"
+        rec = record_dir(args.take, config)
+        output = repo_path(args.output) if args.output else ROOT / "outputs" / f"real2sim_replay_{args.take}"
+        sim = get(config, "simulation", default={})
+        model = repo_path(sim.get("model", "models/scenario_g1_dex5_stationary.xml"))
+        if not args.dry_run:
+            insist([script, model, trial / "palm_pose_6dof.csv",
+                    trial / "joint_targets.csv", rec / "camera1.avi"])
+            check_outputs(output, overwrite=args.overwrite, dry_run=False)
+        origin = sim.get("table_origin_world", [0.385, -0.120, 0.832])
+        if not isinstance(origin, list) or len(origin) != 3:
+            raise SystemExit("simulation.table_origin_world must contain 3 numbers")
+        cmd = [python_here(), script, "--palm-csv", trial / "palm_pose_6dof.csv",
+               "--finger-csv", trial / "joint_targets.csv",
+               "--model", model,
+               "--table-yaw-deg", str(sim.get("table_yaw_deg", -90)),
+               "--table-origin-world", *(str(x) for x in origin),
+               "--ik-mode", args.ik_mode or sim.get("ik_mode", "xyz"),
+               "--video", rec / "camera1.avi", "--output", output]
+        if args.headless:
+            cmd.append("--headless")
+        else:
+            cmd.append("--autoplay")
+        return run([*cmd, *extra], dry_run=args.dry_run)
+    if args.command == "physics":
+        script = CODE / "dex5_physics_replay.py"
+        output = repo_path(args.output) if args.output else ROOT / "outputs" / f"real2sim_physics_{args.take}"
+        trajectory = (repo_path(args.trajectory) if args.trajectory else
+                      ROOT / "outputs" / f"real2sim_replay_{args.take}" / "sim_qpos.npz")
+        objects = (record_dir(args.take, config) / "processed/object_localization/objects_keyframes.csv")
+        annotations = record_dir(args.take, config) / "phase_annotations.csv"
+        if not args.dry_run:
+            insist([script, CODE / "dex5_video_to_sim_side_by_side.py",
+                    trajectory, objects, annotations])
+            if output.exists():
+                raise SystemExit(
+                    f"Physics output already exists: {output}\n"
+                    "The physics script refuses existing output folders; use --output NEW_DIRECTORY."
+                )
+        phy = get(config, "physics", default={})
+        cmd = [python_here(), script, "--take", args.take,
+               "--trajectory", trajectory,
+               "--cup-from-approach-blue",
+               "--cup-clearance-mm", str(phy.get("cup_clearance_mm", 70)),
+               "--output", output]
+        if args.view:
+            cmd.append("--view")
+        return run([*cmd, *extra], dry_run=args.dry_run)
+    raise AssertionError(args.command)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

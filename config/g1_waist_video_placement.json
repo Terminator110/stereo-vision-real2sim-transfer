@@ -1,0 +1,15 @@
+{
+  "robot_offset_xy_world": [
+    -0.09,
+    -0.1
+  ],
+  "geometry_signature": "e14f65f0ad3526f3dcdc09fb7a9f43a571781021c9e69e95951180adf3f1526b",
+  "workspace_origin_world_m": [
+    0.38499999999999995,
+    -0.12,
+    0.832
+  ],
+  "workspace_yaw_degrees": -90.0,
+  "reachability_npz": "/home/sparx3d/physikal_workflow/dex-5/outputs/waist_video_placement_20261103/reachable.npz",
+  "report": "/home/sparx3d/physikal_workflow/dex-5/outputs/waist_video_placement_20261103/report.json"
+}

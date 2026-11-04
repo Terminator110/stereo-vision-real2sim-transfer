@@ -1,0 +1,19 @@
+# Separate FoundationStereo inference environment.
+# First install FoundationStereo as directed by its upstream README, with an
+# appropriate torch/CUDA stack, then check these common runtime dependencies.
+# This is NOT an authoritative replacement for upstream requirements.
+numpy
+scipy
+opencv-python
+Pillow
+torch
+torchvision
+omegaconf
+einops
+trimesh
+scikit-image
+imageio
+PyYAML
+tqdm
+
+# Optional / upstream-dependent: hydra-core, imageio-ffmpeg

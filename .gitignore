@@ -1,0 +1,228 @@
+# ============================================
+# Stereo-Vision based Real2Sim Transfer
+# ============================================
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Python environments
+.venv/
+venv/
+env/
+envs/
+.conda/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ============================================
+# Raw recordings
+# ============================================
+
+code/stereo/recordings_three_cam/
+code/stereo/recordings_parallel_v3/
+
+# ============================================
+# Generated results
+# ============================================
+
+/outputs/
+/runs/
+
+**/processed/
+**/debug_outputs/
+**/visualizations/
+
+# ============================================
+# FoundationStereo upstream checkout
+# ============================================
+
+/FoundationStereo/*
+
+# Preserve our custom FoundationStereo processor
+!/FoundationStereo/scripts/
+/FoundationStereo/scripts/*
+!/FoundationStereo/scripts/dex5_wristband_pipeline_v2.py
+
+# ============================================
+# Model checkpoints
+# ============================================
+
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+
+# ============================================
+# Logs and temporary files
+# ============================================
+
+*.log
+*.tmp
+*.temp
+*.bak
+*.bak_*
+*.before_*
+*.orig
+*~
+
+# ============================================
+# Legacy standalone experiments
+# ============================================
+
+test_grasp_lift.py
+test_knuckle_grasp_lift.py
+test_grasp_trajectory_cup.py
+test_combined_grasp_replay.py
+test_grasp_closure.py
+test_grasp_phase_cup.py
+test_grasp_stereo_dex5.py
+reconstruct_knuckle_grasp.py
+
+# Legacy reconstruction modules
+reconstruct_grasp_closure.py
+reconstruct_demo.py
+dex5_batch_pipeline.py
+
+# ========================================
+# Additional GitHub cleanup
+# ========================================
+
+# Bundled third-party Python packages
+/vendor/python/
+
+# Raw camera recordings
+/code/stereo/recordings/
+/code/stereo/recordings_parallel/
+/code/stereo/recordings_parallel_v3/
+/code/stereo/recordings_three_cam/
+/code/stereo/recordings_batch_10_nov03/
+
+# All other generated recording directories
+/code/stereo/recordings_*/
+
+# Generated experiment outputs
+/outputs/
+/runs/
+/videos/
+
+# FoundationStereo upstream repository and data
+/FoundationStereo/*
+!/FoundationStereo/scripts/
+/FoundationStereo/scripts/*
+!/FoundationStereo/scripts/dex5_wristband_pipeline_v2.py
+
+# Virtual environments and caches
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Pretrained model weights
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+
+# Temporary files and backups
+*.backup
+*.bak
+*.bak_*
+*.before_*
+*.orig
+*~
+
+# Duplicate demonstration video
+/docs/media/dex5_wrist_smoothed_demo.mp4
+
+# Generated inventory
+/github_file_manifest.txt
+
+# Cached robot control policies
+/models/policies/hub/
+
+# Local Hugging Face caches
+**/.cache/huggingface/
+**/models--*/
+**/snapshots/
+**/blobs/
+
+# ============================================
+# Real2Sim — final publication cleanup
+# ============================================
+
+# Old experiment reports and documentation
+/APPROACH_REPLAY.md
+/CUP_ESTIMATION_REPORT.md
+/G1_DEX5_STATIONARY_README.md
+/G1_HAND_IK.md
+/MUJOCO_MVP_SETUP.md
+/STEREO_COMMANDS.txt
+/STEREO_HAND_RETARGETING.md
+/STEREO_RECONSTRUCTION_WORKFLOW.md
+/TEST*_README.md
+/TEST*_REPORT.md
+/TEST*_TRACKING_REPORT.md
+/TEST_REPORT_*.md
+/THUMB_RETARGETING.md
+/WRIST_IK_PICKER.md
+/directory-info.md
+
+# Unrelated G1 locomotion experiments
+/walk
+/code/g1_groot_walk_demo.py
+/models/policies/
+/vendor/
+
+# Generated calibration images and test data
+/code/stereo/calibration/**/*.png
+/code/stereo/calibration/**/*.jpg
+/code/stereo/calibration/**/*.jpeg
+/code/stereo/calibration/**/*.csv
+
+# Keep the calibrated stereo/table transformations
+!/code/stereo/calibration/parallel_results_v3/*.npz
+
+# SAM/YOLO generated results
+/code/runs/
+/code/stereo/wrist_trajectory.png
+/code/stereo/wrist_trajectory.csv
+
+# Redundant MediaPipe model copy
+/code/stereo/hand_landmarker.task
+
+# Standalone experiment data directories
+/code/stereo/tests/
+/code/stereo/object_tests/
+/code/stereo/coaster_tests/
+/code/stereo/parallel_wrist_visualization/
+/code/stereo/parallel_wrist_visualization_3tags/
+
+# Legacy experiment scripts
+/code/test_*.py
+/code/stereo/test_*.py
+/code/stereo/stereo_wrist_test_old.py
+/code/stereo/stereo_wrist_test_backup.py
+
+# Launcher backups
+/real2sim.v1.backup
+/real2sim.v2.backup
+
+# Duplicate demo
+/docs/media/dex5_wrist_smoothed_demo.mp4
+
+# FoundationStereo is an upstream repository.
+# Install it separately; do not commit it as an embedded Git repository.
+/FoundationStereo/
+/code/10
+
+# Original CAD source files
+/models/objects/cup/source/

@@ -1,0 +1,359 @@
+============================================================
+G1 + DEX5 — STEREO RECONSTRUCTION + WRIST SMOOTHING
+REFERENCE COMMANDS
+Updated: 2026-11-04
+Project: ~/physikal_workflow/dex-5/code
+============================================================
+
+IMPORTANT
+---------
+Run commands from:
+    cd ~/physikal_workflow/dex-5/code
+    conda activate g1_lerobot
+
+FoundationStereo Python:
+    ~/physikal_workflow/dex-5/FoundationStereo/.venv/bin/python
+
+Do not use env_isaaclab Python for FoundationStereo depth.
+
+Existing successful reference:
+    take_20261103_204604_475603
+    225 frames
+
+Smoothed test recordings:
+    take_20261103_211717_574941   (283 frames)
+    take_20261103_211944_200460   (186 frames)
+
+Original recordings and reconstruction outputs should not
+be overwritten.
+
+============================================================
+1. RECORD STEREO VIDEO
+============================================================
+
+Recorder:
+    stereo/record_parallel_tags.py
+
+Working configuration:
+    Camera 1: /dev/video2
+    Camera 2: /dev/video0
+    Rotate Camera 2: enabled
+
+Check current recorder options before using:
+    python stereo/record_parallel_tags.py --help
+
+Calibration:
+    stereo/calibration/parallel_results_v3/stereo_calibration.npz
+
+Table calibration:
+    stereo/calibration/parallel_results_v3/table_frame_multi.npz
+
+Recording folders:
+    stereo/recordings_parallel_v3/
+    stereo/recordings_batch_10_nov03/
+
+============================================================
+2. PROCESS AN EXISTING RECORDING
+============================================================
+
+TAKE="take_20261103_211717_574941"
+
+python dex5_batch_pipeline_v2.py process \
+    --take "$TAKE" \
+    --choose-prompt \
+    --sam-weights "$HOME/physikal_workflow/sam3.pt" \
+    --g1-python "$HOME/miniconda3/envs/g1_lerobot/bin/python" \
+    --fs-python "$HOME/physikal_workflow/dex-5/FoundationStereo/.venv/bin/python" \
+    --scale 0.5 \
+    --iters 16 \
+    --max-reproj 8
+
+NOTE:
+Batch process may skip stages whose outputs already exist.
+Do not use --force unless all stages should be rerun.
+
+Check batch help:
+    python dex5_batch_pipeline_v2.py process --help
+
+============================================================
+3. RUN SAM3 WITH A SPECIFIC PROMPT FRAME
+============================================================
+
+Example: 283-frame recording, prompt frame 36.
+
+TRIAL="$HOME/physikal_workflow/dex-5/FoundationStereo/wristband_batch_take_20261103_211717_574941"
+
+python dex5_sam3_video_masks.py \
+    --frames-dir "$TRIAL/left_jpg" \
+    --weights "$HOME/physikal_workflow/sam3.pt" \
+    --out "$TRIAL/sam_frame36_test" \
+    --prompt-frame 36
+
+Outputs:
+    sam_frame36_test/masks/
+    sam_frame36_test/sam_prompt.json
+    sam_frame36_test/sam_tracking.csv
+
+IMPORTANT:
+If previous SAM output already exists, the batch script
+may skip rerunning segmentation.
+
+============================================================
+4. FOUNDATIONSTEREO DEPTH RECONSTRUCTION
+============================================================
+
+Required trial contents:
+    meta.json
+    K.txt
+    left_png/
+    right_png/
+    masks/
+
+Use:
+    FS_PY="$HOME/physikal_workflow/dex-5/FoundationStereo/.venv/bin/python"
+
+For the 283-frame corrected-mask experiment:
+
+    TRIAL="$HOME/physikal_workflow/dex-5/FoundationStereo/wristband_frame36_depth_take_20261103_211717_574941"
+
+    "$FS_PY" \
+      ../FoundationStereo/scripts/dex5_wristband_pipeline_v2.py depth \
+      --out "$TRIAL" \
+      --iters 16 \
+      --vis-every 5
+
+Output:
+    wrist_xyz_camera1.csv
+    xyz_overlays/
+
+Result:
+    247/283 valid XYZ frames
+
+NOTE:
+The corrected 283-frame trial was created separately by
+linking the original prepared image directories and copying
+the frame-36 SAM masks.
+
+============================================================
+5. SMOOTH 283-FRAME RECONSTRUCTION
+============================================================
+
+Script:
+    smooth_wrist_depth.py
+
+Run:
+    python smooth_wrist_depth.py
+
+Output:
+    FoundationStereo/wristband_frame36_depth_take_20261103_211717_574941/smoothing_test/
+
+Files:
+    wrist_xyz_smoothed.csv
+    xyz_comparison.png
+    movement_comparison.png
+
+Method:
+    Early-frame camera-ray depth stabilization
+    Reference depth: 0.7835 m
+    Robust median filtering
+    70 mm residual soft limit
+    Gaussian smoothing, sigma=2
+
+Results:
+    Valid frames: 247
+    Original maximum XYZ jump: 885.47 mm
+    Smoothed maximum XYZ jump: 11.72 mm
+
+============================================================
+6. VIEW ORIGINAL VS SMOOTHED WRIST OVERLAY
+============================================================
+
+Script:
+    compare_wrist_overlay.py
+
+Run:
+    python compare_wrist_overlay.py
+
+Outputs:
+    smoothing_test/overlay_validation/
+
+Videos:
+    full_wrist_comparison.mp4
+    frames_36_to_85.mp4
+
+Original XYZ: yellow
+Smoothed XYZ: green
+
+IMPORTANT:
+The black information panel was removed from this script
+to avoid covering the wristband.
+
+============================================================
+7. SMOOTH THE PROBLEMATIC 186-FRAME RECORDING
+============================================================
+
+Recording:
+    take_20261103_211944_200460
+
+Original FoundationStereo:
+    FoundationStereo/wristband_batch_take_20261103_211944_200460/
+
+Script:
+    test_smoothing_186.py
+
+Run:
+    python test_smoothing_186.py
+
+Output:
+    FoundationStereo/wristband_smoothed_take_20261103_211944_200460/
+
+Files:
+    wrist_xyz_smoothed.csv
+    xyz_comparison.png
+
+Original FS results:
+    Valid: 157/186
+    Invalid: 29
+
+Agent stereo-disagreement filter:
+    Retained: 106/186
+
+Smoothing:
+    Depth reference selected from frames 65–85
+    Depth anchoring applied through frame 62
+    Missing XYZ interpolated/edge-filled
+    Median-based outlier suppression
+    Gaussian smoothing, sigma=2
+
+WARNING:
+Interpolated and anchored depths are ESTIMATES.
+Smoothness does not prove 3D accuracy.
+
+============================================================
+8. COMBINE SMOOTHED XYZ WITH PALM ORIENTATION
+============================================================
+
+Script:
+    prepare_smoothed_186_sim.py
+
+Run:
+    python prepare_smoothed_186_sim.py
+
+Inputs:
+    FoundationStereo/wristband_smoothed_take_20261103_211944_200460/wrist_xyz_smoothed.csv
+
+    outputs/reconstructed_demos/take_20261103_211944_200460/trial/palm_pose_6dof.csv
+
+    code/stereo/calibration/parallel_results_v3/table_frame_multi.npz
+
+Outputs:
+    outputs/smoothed_186_sim/take_20261103_211944_200460/palm_pose_6dof_smoothed.csv
+
+    outputs/smoothed_186_sim/take_20261103_211944_200460/wrist_source_quality.csv
+
+Existing MediaPipe orientations preserved.
+Existing Dex5 finger targets preserved.
+
+WARNING:
+The current preparation script marks all smoothed XYZ
+positions VALID for the simulator, including estimates.
+Use wrist_source_quality.csv to distinguish measured
+and estimated wrist positions.
+
+============================================================
+9. LAUNCH 186-FRAME MUJOCO REPLAY
+============================================================
+
+TAKE="take_20261103_211944_200460"
+OUT="$HOME/physikal_workflow/dex-5/outputs/smoothed_186_sim/$TAKE"
+
+MUJOCO_GL=glfw python dex5_video_to_sim_wrist_smoothed.py \
+    --palm-csv "$OUT/palm_pose_6dof_smoothed.csv" \
+    --finger-csv "$HOME/physikal_workflow/dex-5/outputs/reconstructed_demos/$TAKE/trial/joint_targets.csv" \
+    --video "stereo/recordings_parallel_v3/$TAKE/camera1.avi" \
+    --ik-reference wrist \
+    --ik-mode pose \
+    --table-yaw-deg -90 \
+    --table-origin-world 0.385 -0.120 0.832 \
+    --xyz-window 9 \
+    --orientation-window 7 \
+    --orientation-max-gap-s 0.30 \
+    --position-weight 10 \
+    --pose-weight 0.5 \
+    --max-arm-speed 4 \
+    --preposition-seconds 2 \
+    --robot-alpha 0.32 \
+    --output "$OUT/replay"
+
+Simulator:
+    dex5_video_to_sim_wrist_smoothed.py
+
+Model:
+    ../models/scenario_g1_dex5_stationary.xml
+
+NOTE:
+This is kinematic IK visualization, not physics-based
+grasping or contact simulation.
+
+============================================================
+10. SUCCESSFUL 225-FRAME REFERENCE REPLAY
+============================================================
+
+TRIAL="$HOME/physikal_workflow/dex-5/FoundationStereo/wristband_rotation_v2_take_20261103_204604_475603"
+
+MUJOCO_GL=glfw python dex5_video_to_sim_wrist_smoothed.py \
+    --palm-csv "$TRIAL/palm_pose_6dof.csv" \
+    --finger-csv "$TRIAL/joint_targets.csv" \
+    --video "stereo/recordings_parallel_v3/take_20261103_204604_475603/camera1.avi" \
+    --ik-reference wrist \
+    --ik-mode pose \
+    --table-yaw-deg -90 \
+    --table-origin-world 0.385 -0.120 0.832 \
+    --xyz-window 9 \
+    --orientation-window 7 \
+    --orientation-max-gap-s 0.30 \
+    --position-weight 10 \
+    --pose-weight 0.5 \
+    --max-arm-speed 4 \
+    --preposition-seconds 2 \
+    --robot-alpha 0.32 \
+    --output ../outputs/dex5_wrist_smoothed_reference
+
+============================================================
+11. IMPORTANT SCRIPTS — KEEP
+============================================================
+
+stereo/record_parallel_tags.py
+dex5_batch_pipeline_v2.py
+dex5_sam3_video_masks.py
+../FoundationStereo/scripts/dex5_wristband_pipeline_v2.py
+12_stereo_g1_dex5.py
+combine_wristband_stereo_pose.py
+smooth_wrist_depth.py
+test_smoothing_186.py
+compare_wrist_overlay.py
+prepare_smoothed_186_sim.py
+dex5_video_to_sim_wrist_smoothed.py
+
+Models/assets:
+    ~/physikal_workflow/sam3.pt
+    FoundationStereo/pretrained_models/11-33-40/model_best_bp2.pth
+    models/scenario_g1_dex5_stationary.xml
+
+DO NOT DELETE OTHER SCRIPTS OR MODELS YET.
+This is a list of known relevant files, not a dependency audit.
+
+============================================================
+12. OPEN ISSUES
+============================================================
+
+[ ] Verify video/reconstruction timestamp synchronization.
+[ ] Independently validate estimated wrist depth.
+[ ] Compare smoothed trajectory with stereo MediaPipe.
+[ ] Inspect MuJoCo achieved wrist vs target wrist.
+[ ] Preserve confidence/status in simulator output.
+[ ] Audit actual script/model dependencies before cleanup.
+[ ] Consolidate reusable smoothing for multiple recordings.
+[ ] Use actual capture timestamps where available.
+
+============================================================

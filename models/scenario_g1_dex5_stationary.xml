@@ -1,0 +1,17 @@
+<mujoco model="g1_dex5_stationary_test">
+  <include file="robots/unitree_g1_29dof/unitree_g1_29dof_assets.xml" />
+  <include file="robots/g1_dex5/g1_dex5_stationary.xml" />
+  <include file="scenes/table_and_cup.xml" />
+  <include file="scenes/g1_right_wrist_reachable_volume.xml" />
+  <compiler angle="radian" meshdir="." texturedir="." />
+  <option timestep="0.002" gravity="0 0 -9.81" integrator="implicitfast" />
+  <statistic center="0 0 0.8" extent="2" />
+  <visual>
+    <headlight ambient="0.5 0.5 0.5" diffuse="0.8 0.8 0.8" />
+    <global offwidth="1280" offheight="720" />
+  </visual>
+  <worldbody>
+    <light pos="1 -2 3" dir="-0.2 0.2 -1" />
+    <geom name="floor" type="plane" size="4 4 0.1" rgba="0.18 0.22 0.24 1" />
+  </worldbody>
+</mujoco>

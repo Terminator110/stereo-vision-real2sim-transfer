@@ -1,0 +1,28 @@
+# Primary g1_lerobot environment — direct Python dependencies used by the
+# Real2Sim recording, tracking, retargeting and MuJoCo pipeline.
+# Run inside a dedicated environment. The FoundationStereo CUDA environment
+# is intentionally separate; see requirements-foundationstereo.txt.
+# Versions here are minimums, NOT a tested cross-platform lock file.
+PyYAML>=6.0
+numpy>=1.26
+scipy>=1.11
+opencv-python>=4.8
+mediapipe>=0.10
+mujoco>=3.1
+pandas>=2.0
+Pillow>=10.0
+matplotlib>=3.8
+tqdm>=4.66
+# SAM3 / ML inference packages: actual source checkout may need more.
+torch>=2.3
+torchvision>=0.18
+huggingface-hub>=0.20
+safetensors>=0.4
+einops>=0.7
+ultralytics>=8.4.201
+omegaconf>=2.3
+# Visualization and data/geometry utilities used across research scripts.
+trimesh>=4.0
+
+# Optional research dependencies (not installed in validated g1_lerobot environment):
+# transformers, hydra-core, scikit-image, scikit-learn, imageio, imageio-ffmpeg

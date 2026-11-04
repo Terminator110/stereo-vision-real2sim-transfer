@@ -1,0 +1,28 @@
+# Local configuration for Stereo-Vision based Real2Sim Transfer.
+# Paths are relative to the dex-5 project root unless absolute.
+# Update calibration and table mapping if the physical setup changes.
+paths:
+  recordings: code/stereo/recordings_three_cam
+  calibration: code/stereo/calibration/parallel_results_v3/stereo_calibration.npz
+  foundationstereo_python: FoundationStereo/.venv/bin/python
+  # Existing SAM3 weights: ~/physikal_workflow/sam3.pt when repo is ~/physikal_workflow/dex-5
+  sam_weights: ../sam3.pt
+
+reconstruction:
+  objects: true
+  object_every_s: 1.0
+  cup_radius_mm: 35       # Object localization assumption; not MuJoCo collision radius
+  cup_height_mm: 100
+
+simulation:
+  model: models/scenario_g1_dex5_stationary.xml
+  # Verified for the calibrated setup used for take_20261104_193136_730622.
+  table_yaw_deg: -90
+  table_origin_world: [0.385, -0.120, 0.832]
+  # XYZ is the validated wrist trajectory; palm orientation remains experimental.
+  ik_mode: xyz
+
+physics:
+  cup_clearance_mm: 70   # Added to MuJoCo collision radius in physics script
+  # Palm marker -30 deg local-X rotation is implemented in dex5_physics_replay.py,
+  # not settable through this launcher.

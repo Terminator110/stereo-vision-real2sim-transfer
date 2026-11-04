@@ -1,0 +1,66 @@
+<mujoco model="table_and_cup">
+  <asset>
+    <mesh name="table_cup_mesh" file="objects/cup/cup_82x98mm.stl" />
+  </asset>
+  <worldbody>
+    <!-- Desired 60 x 50 x 25 cm workspace: red +/-0.30, green -0.32 to +0.18 m.
+         Visual sites only; raised 3 mm to avoid tabletop z-fighting. -->
+    <body name="tabletop_workspace_boundary" pos="0.3850000000 -0.1200000000 0.8350000000"
+          quat="0.7071067812 0 0 -0.7071067812">
+      <!-- Permanent shared-frame origin, also visible outside trajectory preview. -->
+      <site name="workspace_origin" type="sphere" pos="0 0 -0.003" size="0.015" rgba="1 1 1 1" />
+      <site name="workspace_origin_red_axis" type="capsule" fromto="0 0 0.004 0.12 0 0.004" size="0.004" rgba="1 0.1 0.1 1" />
+      <site name="workspace_origin_green_axis" type="capsule" fromto="0 0 0.004 0 0.12 0.004" size="0.004" rgba="0.1 1 0.1 1" />
+      <site name="workspace_origin_blue_axis" type="capsule" fromto="0 0 -0.003 0 0 0.117" size="0.004" rgba="0.1 0.3 1 1" />
+      <site name="workspace_red_positive_edge" type="capsule" fromto="0.30 -0.32 0 0.30 0.18 0" size="0.003" rgba="1 0.15 0.15 1" />
+      <site name="workspace_red_negative_edge" type="capsule" fromto="-0.30 -0.32 0 -0.30 0.18 0" size="0.003" rgba="1 0.15 0.15 1" />
+      <site name="workspace_green_positive_edge" type="capsule" fromto="-0.30 0.18 0 0.30 0.18 0" size="0.003" rgba="0.15 1 0.25 1" />
+      <site name="workspace_green_negative_edge" type="capsule" fromto="-0.30 -0.32 0 0.30 -0.32 0" size="0.003" rgba="0.15 1 0.25 1" />
+      <site name="workspace_upper_front" type="capsule" fromto="-0.30 -0.32 0.25 0.30 -0.32 0.25" size="0.0015" rgba="0.8 0.85 0.9 0.65" />
+      <site name="workspace_upper_back" type="capsule" fromto="-0.30 0.18 0.25 0.30 0.18 0.25" size="0.0015" rgba="0.8 0.85 0.9 0.65" />
+      <site name="workspace_upper_left" type="capsule" fromto="-0.30 -0.32 0.25 -0.30 0.18 0.25" size="0.0015" rgba="0.8 0.85 0.9 0.65" />
+      <site name="workspace_upper_right" type="capsule" fromto="0.30 -0.32 0.25 0.30 0.18 0.25" size="0.0015" rgba="0.8 0.85 0.9 0.65" />
+      <site name="workspace_vertical_1" type="capsule" fromto="-0.30 -0.32 0 -0.30 -0.32 0.25" size="0.0015" rgba="0.8 0.85 0.9 0.65" />
+      <site name="workspace_vertical_2" type="capsule" fromto="0.30 -0.32 0 0.30 -0.32 0.25" size="0.0015" rgba="0.8 0.85 0.9 0.65" />
+      <site name="workspace_vertical_3" type="capsule" fromto="-0.30 0.18 0 -0.30 0.18 0.25" size="0.0015" rgba="0.8 0.85 0.9 0.65" />
+      <site name="workspace_vertical_4" type="capsule" fromto="0.30 0.18 0 0.30 0.18 0.25" size="0.0015" rgba="0.8 0.85 0.9 0.65" />
+    </body>
+    <!-- Visual-only stereo optical frames: v3 camera poses mapped through the shared workspace.
+         Optical axes: red +X (right), green +Y (down), blue +Z (forward). -->
+    <body name="stereo_camera1_frame" pos="0.7728226902 -0.0865348872 1.4842580475"
+          quat="-0.2348613640 0.6752224791 0.6630789241 -0.2219033208">
+      <site name="camera1_housing" type="box" pos="0 0 -0.018" size="0.035 0.024 0.018" rgba="1 0.7 0.1 1" />
+      <site name="camera1_lens" type="cylinder" size="0.014 0.009" rgba="0.08 0.09 0.1 1" />
+      <site name="camera1_axis_x" type="capsule" fromto="0 0 0 0.12 0 0" size="0.003" rgba="1 0.1 0.1 1" />
+      <site name="camera1_axis_y" type="capsule" fromto="0 0 0 0 0.12 0" size="0.003" rgba="0.1 1 0.1 1" />
+      <site name="camera1_axis_z" type="capsule" fromto="0 0 0 0 0 0.20" size="0.004" rgba="0.1 0.3 1 1" />
+    </body>
+    <body name="stereo_camera2_frame" pos="0.9065612922 -0.2509340415 1.3520920227"
+          quat="-0.3224179708 0.6759852523 0.6105509331 -0.2575231036">
+      <site name="camera2_housing" type="box" pos="0 0 -0.018" size="0.035 0.024 0.018" rgba="0.1 0.85 0.9 1" />
+      <site name="camera2_lens" type="cylinder" size="0.014 0.009" rgba="0.08 0.09 0.1 1" />
+      <site name="camera2_axis_x" type="capsule" fromto="0 0 0 0.12 0 0" size="0.003" rgba="1 0.1 0.1 1" />
+      <site name="camera2_axis_y" type="capsule" fromto="0 0 0 0 0.12 0" size="0.003" rgba="0.1 1 0.1 1" />
+      <site name="camera2_axis_z" type="capsule" fromto="0 0 0 0 0 0.20" size="0.004" rgba="0.1 0.3 1 1" />
+    </body>
+    <!-- Robot faces +X. Table length runs along Y; top surface is 30 inches high. -->
+    <body name="work_table" pos="0.3750000000 -0.0450000000 0.0700000000">
+      <camera name="mvp_third_person_rgb" pos="0.700000000 -0.850000000 1.250000000" quat="0.741791848 0.564040749 0.219575563 0.288772332" fovy="48" />
+      <geom name="work_table_top" type="box" pos="0 0 0.747"
+            size="0.31 0.375 0.015" rgba="0.34 0.46 0.48 1" />
+      <geom name="work_table_leg_front_left" type="box" pos="0.265 0.33 0.366"
+            size="0.0225 0.0225 0.366" rgba="0.16 0.17 0.18 1" />
+      <geom name="work_table_leg_front_right" type="box" pos="0.265 -0.33 0.366"
+            size="0.0225 0.0225 0.366" rgba="0.16 0.17 0.18 1" />
+      <geom name="work_table_leg_back_left" type="box" pos="-0.265 0.33 0.366"
+            size="0.0225 0.0225 0.366" rgba="0.16 0.17 0.18 1" />
+      <geom name="work_table_leg_back_right" type="box" pos="-0.265 -0.33 0.366"
+            size="0.0225 0.0225 0.366" rgba="0.16 0.17 0.18 1" />
+    </body>
+    <!-- Static visual target: preserve the hollow bowl/handle without convex-hull contacts. -->
+    <body name="table_cup" pos="0.3782213114 -0.2684010226 0.8320000000" quat="0.9659258263 0.0000000000 0.0000000000 -0.2588190451">
+      <geom name="table_cup_visual" type="mesh" mesh="table_cup_mesh"
+            contype="0" conaffinity="0" density="0" rgba="0.90 0.92 0.95 1" />
+    </body>
+  </worldbody>
+</mujoco>
